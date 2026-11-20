@@ -3,7 +3,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, FileText, LayoutGrid, List, RotateCcw, ChevronLeft, ChevronRight, ChevronDown, ArrowRight, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { resourceTitle, thumbSrc, type ResourceRecord } from '@/lib/resources';
+import { resourceThumb, resourceTitle, thumbSrc, type ResourceRecord } from '@/lib/resources';
 import { fileSize, formatSize } from '@/lib/file-sizes';
 import { Link, useLocation } from '@tanstack/react-router';
 import { catalogWindow, type BrowsingContext } from '@/lib/document-browsing';
@@ -42,11 +42,12 @@ function Thumb({ item }: { item: ResourceRecord }) {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const placeholder = documentPlaceholder(item.pdfUrl);
-  const cover = Boolean(item.thumbUrl) && !failed;
+  const thumb = resourceThumb(item);
+  const cover = Boolean(thumb) && !failed;
   const spinner = useLoadingIndicator(cover && !loaded);
   return <div className="dg-thumb">
     <div className="dg-thumb-placeholder">{placeholder ? <img className="dg-file-logo" src={placeholder.url} alt="" /> : <FileText aria-hidden="true" size={40} strokeWidth={1.2} />}</div>
-    {cover ? <img className={`dg-thumb-cover${loaded ? ' dg-thumb-cover-ready' : ''}`} src={thumbSrc(item.thumbUrl ?? '')} alt={`${resourceTitle(item)} cover`} loading="lazy" decoding="async" onLoad={() => setLoaded(true)} onError={() => setFailed(true)} ref={node => { if (node?.complete && node.naturalWidth > 0) setLoaded(true); }} /> : null}
+    {cover ? <img className={`dg-thumb-cover${loaded ? ' dg-thumb-cover-ready' : ''}`} src={thumbSrc(thumb ?? '')} alt={`${resourceTitle(item)} cover`} loading="lazy" decoding="async" onLoad={() => setLoaded(true)} onError={() => setFailed(true)} ref={node => { if (node?.complete && node.naturalWidth > 0) setLoaded(true); }} /> : null}
     {spinner ? <span className="dg-thumb-loading"><LogoLoader label="Loading document cover…" /></span> : null}
     {loaded && item.pages ? <span className="dg-page-count">{item.pages} {item.pages === 1 ? 'page' : 'pages'}</span> : null}
   </div>;

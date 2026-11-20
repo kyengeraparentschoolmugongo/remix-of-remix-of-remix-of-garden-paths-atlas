@@ -1,3 +1,4 @@
+import bakedCoverIds from '@/data/baked-covers.json';
 import lockedCover from '@/assets/locked-pdf.jpeg.asset.json';
 import { searchDocuments } from './document-search';
 import { isVisibleDocument, LOCKED_THUMB_URL } from './document-formats';
@@ -49,6 +50,14 @@ export function resourcePage(items: ResourceRecord[], requestedPage: number) {
 /** Document covers are served from the source repo via jsDelivr to keep this project small. */
 export const THUMB_CDN = 'https://cdn.jsdelivr.net/gh/Springing-Starz/garden-paths-atlas@main/public';
 const repairedCovers = import.meta.glob<{ url: string }>('../assets/document-covers/*.asset.json', { eager: true, import: 'default' });
+
+/** Covers baked later for records whose remote catalog entry has no thumbUrl (keyed by file URL). */
+const bakedCovers = bakedCoverIds as Record<string, string>;
+export function resourceThumb(item: { pdfUrl: string; thumbUrl?: string }) {
+  if (item.thumbUrl) return item.thumbUrl;
+  const id = bakedCovers[item.pdfUrl];
+  return id ? `/thumbs/${id}.webp` : undefined;
+}
 
 export function thumbSrc(url: string) {
   if (url === LOCKED_THUMB_URL) return lockedCover.url;
